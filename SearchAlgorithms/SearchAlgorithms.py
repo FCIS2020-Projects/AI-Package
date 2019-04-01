@@ -28,7 +28,8 @@ class SearchAlgorithms:
          The board is read row wise,
         the nodes are numbered 0-based starting
         the leftmost node'''
-        self.GetBoard(mazeStr)
+        self.board=self.GetBoard(mazeStr)
+
         pass
 
     def GetBoard(self,mazeStr):
@@ -48,6 +49,43 @@ class SearchAlgorithms:
             l=i.split(",")
             ll.append(l)
         return ll
+    def Move(self, Y,X,dir):
+        xd=0
+        yd=0
+        if dir=="right" and X+1< len(self.board[0]):
+            xd=1
+        elif dir=="left" and X>0:
+            xd=-1
+        elif dir=="up" and Y>0:
+            yd=-1
+        elif dir=="down" and Y+1< len(self.board):
+            yd=1
+        if(self.board[Y+yd][X+xd].value=='.' and ( yd !=0 or xd !=0)):
+            self.board[Y][X].value='x'
+            self.board[Y+yd][X+xd].value='S'
+            return True
+        return False
+
+    def PrintBoard(self):
+        for i in self.board:
+            s=""
+            for j in i:
+                s+=j.value+" "
+            print(s)
+        print("\n")
+
+    def GetIndex(self,char):
+        x=0;y=0;
+        for i in self.board:
+            x=0
+            for j in i:
+                if(j.value==char):
+                    return x,y
+                x+=1
+            y+=1
+        return -1,-1
+
+
 
     def DFS(self):
         # Fill the correct path in self.path
