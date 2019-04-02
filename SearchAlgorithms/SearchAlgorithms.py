@@ -1,3 +1,5 @@
+from collections import deque
+
 class Node:
     id = None  # Unique value for each node.
     up = None  # Represents value of neighbors (up, down, left, right).
@@ -128,8 +130,36 @@ class SearchAlgorithms:
     def BFS(self):
         # Fill the correct path in self.path
         # self.fullPath should contain the order of visited nodes
+        CLOSED = []
+        Ex, Ey = self.GetIndex("E")
+        Sx, Sy = self.GetIndex("S")
+        OPEN = deque()
+        OPEN.append(self.board[Sy][Sx]);
 
+        while OPEN:
+            node = OPEN.pop()
+            CLOSED.append(node)
+            if node.value == "E":
+                break
 
+            if node.up is not None and (node.up.value == "." or node.up.value == "E") and node.up not in CLOSED:
+                node.up = self.move_BFS_DFS(node, node.up)
+                OPEN.appendleft(node.up)
+            if node.down is not None and (node.down.value == "." or node.down.value == "E") and node.down not in CLOSED:
+                node.down = self.move_BFS_DFS(node, node.down)
+                OPEN.appendleft(node.down)
+            if node.left is not None and (node.left.value == "." or node.left.value == "E") and node.left not in CLOSED:
+                node.left = self.move_BFS_DFS(node, node.left)
+                OPEN.appendleft(node.left)
+            if node.right is not None and (node.right.value == "." or node.right.value == "E") and node.right not in CLOSED:
+                node.right = self.move_BFS_DFS(node, node.right)
+                OPEN.appendleft(node.right)
+
+        self.path = self.getPath()
+        l = []
+        for n in CLOSED:
+            l.append(n.id)
+        self.fullPath = l
 
         return self.path, self.fullPath
 
@@ -175,6 +205,11 @@ class SearchAlgorithms:
         self.totalCost = self.board[Ey][Ex].heuristicFn
         return self.path, self.fullPath, self.totalCost
 
+    def move_BFS_DFS(self,n1,n2):
+        Ex, Ey = self.GetIndex("E")
+        n2.previousNode = n1
+        return n2
+
     def move(self, n1, n2):
         Ex, Ey = self.GetIndex("E")
         n2.previousNode = n1
@@ -192,7 +227,6 @@ class SearchAlgorithms:
         path = []
         Ex, Ey = self.GetIndex("E")
         n = self.board[Ey][Ex]
-        print(n.id)
         path.append(n.id)
         while n.previousNode:
             path.append(n.previousNode.id)
