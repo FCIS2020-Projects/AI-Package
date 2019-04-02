@@ -71,6 +71,7 @@ class SearchAlgorithms:
             l=i.split(",")
             ll.append(l)
         return ll
+
     def Move(self, Y,X,dir):
         xd=0
         yd=0
@@ -136,6 +137,36 @@ class SearchAlgorithms:
     def UCS(self):
         # Fill the correct path in self.path
         # self.fullPath should contain the order of visited nodes
+        notvisited = []
+        visited = []
+        Ex, Ey = self.GetIndex("E")
+        Sx, Sy = self.GetIndex("S")
+        notvisited.append(self.board[Sy][Sx])
+        while len(notvisited) != 0:
+            notvisited.sort(key=lambda x: x.gOfN, reverse=True)
+            node = notvisited.pop()
+            visited.append(node)
+            if node.value == "E":
+                break
+            if node.up is not None and not node.up.value == "#" and node.up not in visited:
+                node.up = self.CostUcs(node, node.up)
+                notvisited.append(node.up)
+            if node.down is not None and not node.down.value == "#" and node.down not in visited:
+                node.down = self.CostUcs(node, node.down)
+                notvisited.append(node.down)
+            if node.left is not None and not node.left.value == "#" and node.left not in visited:
+                node.left = self.CostUcs(node, node.left)
+                notvisited.append(node.left)
+            if node.right is not None and not node.right.value == "#" and node.right not in visited:
+                node.right = self.CostUcs(node, node.right)
+                notvisited.append(node.right)
+
+        self.path = self.getPath()
+        l = []
+        for n in visited:
+            l.append(n.id)
+        self.fullPath = l
+        self.totalCost = self.board[Ey][Ex].gOfN
         return self.path, self.fullPath, self.totalCost
 
     def AStarEuclideanHeuristic(self):
@@ -174,6 +205,11 @@ class SearchAlgorithms:
         self.fullPath = l
         self.totalCost = self.board[Ey][Ex].heuristicFn
         return self.path, self.fullPath, self.totalCost
+
+    def CostUcs(self, n1, n2):
+        n2.previousNode = n1
+        n2.gOfN = n1.gOfN + n2.edgeCost
+        return n2
 
     def move(self, n1, n2):
         Ex, Ey = self.GetIndex("E")
