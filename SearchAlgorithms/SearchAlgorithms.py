@@ -1,5 +1,4 @@
 from collections import deque
-
 class Node:
     id = None  # Unique value for each node.
     up = None  # Represents value of neighbors (up, down, left, right).
@@ -73,6 +72,7 @@ class SearchAlgorithms:
             l=i.split(",")
             ll.append(l)
         return ll
+
     def Move(self, Y,X,dir):
         xd=0
         yd=0
@@ -127,38 +127,45 @@ class SearchAlgorithms:
         # self.fullPath should contain the order of visited nodes
         return self.path, self.fullPath
 
+
+    def move_BFS_DFS(self,n1,n2):
+        n2.previousNode = n1
+        return n2
     def BFS(self):
         # Fill the correct path in self.path
         # self.fullPath should contain the order of visited nodes
-        CLOSED = []
-        Ex, Ey = self.GetIndex("E")
         Sx, Sy = self.GetIndex("S")
-        OPEN = deque()
-        OPEN.append(self.board[Sy][Sx]);
+        open = deque([self.board[Sy][Sx]])
+        visited = []
 
-        while OPEN:
-            node = OPEN.pop()
-            CLOSED.append(node)
-            if node.value == "E":
+        while open :
+            node = open.popleft()
+            visited.append(node)
+
+            if(node.value) == "E":
                 break
 
-            if node.up is not None and (node.up.value == "." or node.up.value == "E") and node.up not in CLOSED:
+            if node.up is not None and (node.up.value == "." or node.up.value == "E") and node.up not in visited:
                 node.up = self.move_BFS_DFS(node, node.up)
-                OPEN.appendleft(node.up)
-            if node.down is not None and (node.down.value == "." or node.down.value == "E") and node.down not in CLOSED:
+                open.append(node.up)
+            if node.down is not None and (
+                    node.down.value == "." or node.down.value == "E") and node.down not in visited:
                 node.down = self.move_BFS_DFS(node, node.down)
-                OPEN.appendleft(node.down)
-            if node.left is not None and (node.left.value == "." or node.left.value == "E") and node.left not in CLOSED:
+                open.append(node.down)
+            if node.left is not None and (
+                    node.left.value == "." or node.left.value == "E") and node.left not in visited:
                 node.left = self.move_BFS_DFS(node, node.left)
-                OPEN.appendleft(node.left)
-            if node.right is not None and (node.right.value == "." or node.right.value == "E") and node.right not in CLOSED:
+                open.append(node.left)
+            if node.right is not None and (
+                    node.right.value == "." or node.right.value == "E") and node.right not in visited:
                 node.right = self.move_BFS_DFS(node, node.right)
-                OPEN.appendleft(node.right)
+                open.append(node.right)
 
         self.path = self.getPath()
         l = []
-        for n in CLOSED:
+        for n in visited:
             l.append(n.id)
+        l = list(dict.fromkeys(l))
         self.fullPath = l
 
         return self.path, self.fullPath
@@ -166,7 +173,37 @@ class SearchAlgorithms:
     def UCS(self):
         # Fill the correct path in self.path
         # self.fullPath should contain the order of visited nodes
-        return self.path, self.fullPath, self.totalCost
+        notvisited = []
+        visited = []
+        Ex, Ey = self.GetIndex("E")
+        Sx, Sy = self.GetIndex("S")
+        notvisited.append(self.board[Sy][Sx])
+        while len(notvisited) != 0:
+            notvisited.sort(key=lambda x: x.gOfN, reverse=True)
+            node = notvisited.pop()
+            visited.append(node)
+            if node.value == "E":
+                break
+            if node.up is not None and not node.up.value == "#" and node.up not in visited:
+                node.up = self.CostUcs(node, node.up)
+                notvisited.append(node.up)
+            if node.down is not None and not node.down.value == "#" and node.down not in visited:
+                node.down = self.CostUcs(node, node.down)
+                notvisited.append(node.down)
+            if node.left is not None and not node.left.value == "#" and node.left not in visited:
+                node.left = self.CostUcs(node, node.left)
+                notvisited.append(node.left)
+            if node.right is not None and not node.right.value == "#" and node.right not in visited:
+                node.right = self.CostUcs(node, node.right)
+                notvisited.append(node.right)
+
+        self.path = self.getPath()
+        l = []
+        for n in visited:
+            l.append(n.id)
+        self.fullPath = l
+        self.totalCost = self.board[Ey][Ex].gOfN
+        return self.path, self.fullPath ,self.totalCost
 
     def AStarEuclideanHeuristic(self):
         # Cost for a step is calculated based on edge cost of node
@@ -205,9 +242,9 @@ class SearchAlgorithms:
         self.totalCost = self.board[Ey][Ex].heuristicFn
         return self.path, self.fullPath, self.totalCost
 
-    def move_BFS_DFS(self,n1,n2):
-        Ex, Ey = self.GetIndex("E")
+    def CostUcs(self, n1, n2):
         n2.previousNode = n1
+        n2.gOfN = n1.gOfN + n2.edgeCost
         return n2
 
     def move(self, n1, n2):
