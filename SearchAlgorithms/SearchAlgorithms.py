@@ -1,4 +1,6 @@
 from collections import deque
+
+
 class Node:
     id = None  # Unique value for each node.
     up = None  # Represents value of neighbors (up, down, left, right).
@@ -125,12 +127,52 @@ class SearchAlgorithms:
     def DFS(self):
         # Fill the correct path in self.path
         # self.fullPath should contain the order of visited nodes
+        Sx, Sy = self.GetIndex ( "S" )
+        open = [self.board[Sy][Sx],]
+        visited = []
+
+        while open:
+
+            node = open.pop()
+
+            visited.append ( node )
+
+            if (node.value) == "E":
+                break
+
+            if node.up is not None and (node.up.value == "." or node.up.value == "E") and node.up not in visited:
+                node.up = self.move_BFS_DFS ( node, node.up )
+                open.append( node.up )
+
+            if node.left is not None and (
+                    node.left.value == "." or node.left.value == "E") and node.left not in visited:
+                node.left = self.move_BFS_DFS ( node, node.left )
+                open.append ( node.left )
+
+            if node.right is not None and (
+                    node.right.value == "." or node.right.value == "E") and node.right not in visited:
+                node.right = self.move_BFS_DFS ( node, node.right )
+                open.append ( node.right )
+
+            if node.down is not None and (
+                    node.down.value == "." or node.down.value == "E") and node.down not in visited:
+                node.down = self.move_BFS_DFS ( node, node.down )
+                open.append ( node.down )
+
+        self.path = self.getPath ()
+        l = []
+        for n in visited:
+            l.append ( n.id )
+        l = list ( dict.fromkeys ( l ) )
+        self.fullPath = l
+
         return self.path, self.fullPath
 
 
     def move_BFS_DFS(self,n1,n2):
         n2.previousNode = n1
         return n2
+
     def BFS(self):
         # Fill the correct path in self.path
         # self.fullPath should contain the order of visited nodes
@@ -148,14 +190,17 @@ class SearchAlgorithms:
             if node.up is not None and (node.up.value == "." or node.up.value == "E") and node.up not in visited:
                 node.up = self.move_BFS_DFS(node, node.up)
                 open.append(node.up)
+
             if node.down is not None and (
                     node.down.value == "." or node.down.value == "E") and node.down not in visited:
                 node.down = self.move_BFS_DFS(node, node.down)
                 open.append(node.down)
+
             if node.left is not None and (
                     node.left.value == "." or node.left.value == "E") and node.left not in visited:
                 node.left = self.move_BFS_DFS(node, node.left)
                 open.append(node.left)
+
             if node.right is not None and (
                     node.right.value == "." or node.right.value == "E") and node.right not in visited:
                 node.right = self.move_BFS_DFS(node, node.right)
