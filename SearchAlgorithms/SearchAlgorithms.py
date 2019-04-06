@@ -49,6 +49,8 @@ class SearchAlgorithms:
                     n.gOfN = 0
                 if edgeCost:
                     n.edgeCost = edgeCost[count]
+                else:
+                    n.edgeCost=1
 
                 n.id = count
                 l.append(n)
@@ -300,10 +302,12 @@ class SearchAlgorithms:
         n2.heuristicFn = n2.gOfN + n2.hOfN
         return n2
 
+
     def distance(self, n1, n2):
         n1x, n1y = self.GetNodeIndex(n1)
         n2x, n2y = self.GetNodeIndex(n2)
         return ((n1x - n2x) ** 2 + ((n1y - n2y) ** 2)) ** (1 / 2)
+
 
     def getPath(self):
         path = []
@@ -321,7 +325,48 @@ class SearchAlgorithms:
         # and use ManhattanHeuristic for evaluating the heuristic value
         # Fill the correct path in self.path
         # self.fullPath should contain the order of visited nodes
+        open=[]
+        closed=[]
+        Ex, Ey = self.GetIndex("E")
+        Sx, Sy = self.GetIndex("S")
+        open.append(self.board[Sy][Sx])
+        while len(open)!=0:
+            open.sort(key=lambda x: x.heuristicFn, reverse=True)
+            node = open.pop()
+            closed.append(node)
+            if node.value == "E":
+                break
+            open=self.checkNeighbor(node,node.up    ,open,closed)
+            open=self.checkNeighbor(node,node.down  ,open,closed)
+            open=self.checkNeighbor(node,node.right ,open,closed)
+            open=self.checkNeighbor(node,node.left  ,open,closed)
+
+        self.path = self.getPath()
+        l = []
+        for n in closed:
+            l.append(n.id)
+        self.fullPath = l
+        self.totalCost = self.board[Ey][Ex].heuristicFn
+
         return self.path, self.fullPath, self.totalCost
+    def checkNeighbor(self,node,neighbor,open,closed):
+        if neighbor is not None and (neighbor.value == "." or neighbor.value == "E") and neighbor not in closed:
+            neighbor = self.moveManhattan(node, neighbor)
+            open.append(neighbor)
+        return open
+
+    def moveManhattan(self, n1, n2):
+        Ex, Ey = self.GetIndex("E")
+        n2.previousNode = n1
+        n2.gOfN = n1.gOfN + n2.edgeCost
+        n2.hOfN = self.distanceManhattan(n2, self.board[Ey][Ex])
+        n2.heuristicFn = n2.gOfN + n2.hOfN
+        return n2
+
+    def distanceManhattan(self, n1, n2):
+        n1x, n1y = self.GetNodeIndex(n1)
+        n2x, n2y = self.GetNodeIndex(n2)
+        return (abs(n1x - n2x)  + abs(n1y - n2y) )
 
 
 def main():
