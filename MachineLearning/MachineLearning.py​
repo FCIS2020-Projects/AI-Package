@@ -50,7 +50,22 @@ class ID3:
         self.tree=build_tree(dataset)
     def classify(self, input):
         # takes an array for the features ex. [0, 0, 1, 1]
+        currNode = self.tree
 
+        while(True):
+            if currNode.value=="age":
+                currNode=currNode.children[input[0]]
+
+            elif currNode.value=="prescription":
+                currNode=currNode.children[input[1]]
+
+            elif currNode.value=="astigmatic":
+                currNode=currNode.children[input[2]]
+
+            elif currNode.value=="tearRate":
+                currNode=currNode.children[input[3]]
+            else:
+                return int(currNode.value)
         # should return 0 or 1 based on the classification
         pass
 
