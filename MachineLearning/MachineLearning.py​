@@ -45,17 +45,19 @@ class Feature:
 class ID3:
     def __init__(self, features):
         self.features = features
-    def learn(self,dataset,features):
-        self.tree=build_tree(dataset,features)
+        self.learn(dataset)
+    def learn(self,dataset):
+        self.tree=build_tree(dataset)
     def classify(self, input):
         # takes an array for the features ex. [0, 0, 1, 1]
+
         # should return 0 or 1 based on the classification
         pass
 
 class Node:
-    children =[]
     def __init__(self,value):
         self.value=value
+        self.children = []
 
 
 def entrpoy(data):
@@ -67,13 +69,20 @@ def entrpoy(data):
             TE-=px*math.log(px,2);
     return TE
 
-def build_tree(data,features):
-    value=Feature()
-    root=Node()#call the function that decide the max info gain
-    splits=split(data,features,root.value)#split the data into tables
+def build_tree(data):
+    root=getInfoGain(data)#call the function that decide the max info gain
+    splits=split(data,root.value,[0,1])#split the data into tables
+    root.children.append(buildNode(splits[0]))
+    root.children.append(buildNode(splits[1]))
+    return root
 
-    root.childern=[]#
 
+def buildNode(data):
+    #print(count(data,"needLense",data[0].needLense),data[0].needLense,len(data))
+    if count(data,"needLense",data[0].needLense) == len(data):
+        return Node(str(data[0].needLense))
+    else:
+        return build_tree(data)
 
 def match(item,feature,v):
     if feature == "needLense" and item.needLense == v:
@@ -135,7 +144,7 @@ def getInfoGain(data):
 
 dataset = getDataset()
 features = [Feature('age'), Feature('prescription'), Feature('astigmatic'), Feature('tearRate')]
-getInfoGain(dataset)
+
 id3 = ID3(features)
 cls = id3.classify([0, 0, 1, 1])  # should print 1
 print('testcase 1: ', cls)
