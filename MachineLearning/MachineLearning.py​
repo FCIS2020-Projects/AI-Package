@@ -1,0 +1,151 @@
+import  math
+class item:
+    def __init__(self, age, prescription, astigmatic, tearRate, needLense):
+        self.age = age
+        self.prescription = prescription
+        self.astigmatic = astigmatic
+        self.tearRate = tearRate
+        self.needLense = needLense
+
+def getDataset():
+    data = []
+    labels = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0]
+    data.append(item(0, 0, 0, 0, labels[0]))
+    data.append(item(0, 0, 0, 1, labels[1]))
+    data.append(item(0, 0, 1, 0, labels[2]))
+    data.append(item(0, 0, 1, 1, labels[3]))
+    data.append(item(0, 1, 0, 0, labels[4]))
+    data.append(item(0, 1, 0, 1, labels[5]))
+    data.append(item(0, 1, 1, 0, labels[6]))
+    data.append(item(0, 1, 1, 1, labels[7]))
+    data.append(item(1, 0, 0, 0, labels[8]))
+    data.append(item(1, 0, 0, 1, labels[9]))
+    data.append(item(1, 0, 1, 0, labels[10]))
+    data.append(item(1, 0, 1, 1, labels[11]))
+    data.append(item(1, 1, 0, 0, labels[12]))
+    data.append(item(1, 1, 0, 1, labels[13]))
+    data.append(item(1, 1, 1, 0, labels[14]))
+    data.append(item(1, 1, 1, 1, labels[15]))
+    data.append(item(1, 0, 0, 0, labels[16]))
+    data.append(item(1, 0, 0, 1, labels[17]))
+    data.append(item(1, 0, 1, 0, labels[18]))
+    data.append(item(1, 0, 1, 1, labels[19]))
+    data.append(item(1, 1, 0, 0, labels[20]))
+    data.append(item(1, 1, 0, 1, labels[21]))
+    data.append(item(1, 1, 1, 0, labels[22]))
+    data.append(item(1, 1, 1, 1, labels[23]))
+    return data
+
+class Feature:
+    def __init__(self, name):
+        self.name = name
+        self.visited = -1
+        self.infoGain = -1
+
+class ID3:
+    def __init__(self, features):
+        self.features = features
+    def learn(self,dataset,features):
+        self.tree=build_tree(dataset,features)
+    def classify(self, input):
+        # takes an array for the features ex. [0, 0, 1, 1]
+        # should return 0 or 1 based on the classification
+        pass
+
+class Node:
+    children =[]
+    def __init__(self,value):
+        self.value=value
+
+
+def entrpoy(data):
+    values=[0,1]
+    TE=0
+    for v in values:
+        px=count(data,"needLense",v)/len(data)
+        if px !=0.0:
+            TE-=px*math.log(px,2);
+    return TE
+
+def build_tree(data,features):
+    value=Feature()
+    root=Node()#call the function that decide the max info gain
+    splits=split(data,features,root.value)#split the data into tables
+
+    root.childern=[]#
+
+
+def match(item,feature,v):
+    if feature == "needLense" and item.needLense == v:
+        return True
+    elif feature == "prescription" and item.prescription == v:
+        return True
+    elif feature == "age" and item.age == v:
+        return True
+    elif feature == "astigmatic" and item.astigmatic == v:
+        return True
+    elif feature == "tearRate" and item.tearRate == v:
+        return True
+    return False
+
+def split(data,feature,values):
+    tables=[]
+
+    for v in values:
+        l=[]
+        for item in data:
+            if match(item,feature,v):
+                l.append(item)
+        tables.append(l);
+    return tables
+
+
+def count(data,feature,value):
+    c=0
+    c=sum(match(item,feature,value) for item in data)
+    #print(c,value,feature)
+    return c
+
+
+def getInfoGain(data):
+    totalEntropy=entrpoy(data)
+    maxGain=float()
+    max=-1
+
+    values=[0,1]
+    for i in range(0, len(features)):##len from feature
+        if features[i].visited==-1:
+            iGain=float
+            iGain=totalEntropy
+            tables=split(data,features[i].name,values)
+            for table in tables:
+               # print("%f - (%d/%d)*(%f)"%(iGain,len(table),len(data),entrpoy(table)))
+                iGain-=entrpoy(table)*(len(table)/len(data))
+            #print(iGain,features[i].name)
+            if maxGain<iGain:
+                maxGain=iGain
+                max=i
+
+    features[max].infoGain=maxGain
+    features[max].visited=1
+    print(maxGain,features[max].name)
+    #return node with ign
+    return Node(features[max].name)
+
+
+dataset = getDataset()
+features = [Feature('age'), Feature('prescription'), Feature('astigmatic'), Feature('tearRate')]
+getInfoGain(dataset)
+id3 = ID3(features)
+cls = id3.classify([0, 0, 1, 1])  # should print 1
+print('testcase 1: ', cls)
+cls = id3.classify([1, 1, 0, 0])  # should print 0
+print('testcase 2: ', cls)
+cls = id3.classify([1, 1, 1, 0])  # should print 0
+print('testcase 3: ', cls)
+cls = id3.classify([1, 1, 0, 1])  # should print 1
+print('testcase 4: ', cls)
+
+
+
+
